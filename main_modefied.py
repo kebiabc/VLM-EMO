@@ -81,18 +81,8 @@ if args.dataset == "FERV39K" or  args.dataset == "CAER":
 def main(set):
     
     data_set = set+1 
-    if args.dataset == "FERV39K":
-        print("*********** FERV39K Dataset ***********")
-        log_txt_path = './log/' + 'FER39K-' + time_str + '-log.txt'
-        log_curve_path = './log/' + 'FER39K-' + time_str + '-log.png'
-        log_confusion_matrix_path = './log/' + 'FER39K-' + time_str + '-cn.png'
-        checkpoint_path = '/checkpoint/' + 'FER39K-' + time_str + '-model.pth'
-        best_checkpoint_path = './checkpoint/' + 'FER39K-' + time_str + '-model_best.pth'
-        train_annotation_file_path = "./annotation/FERV39K_train.txt"
-        test_annotation_file_path = "./annotation/FERV39K_test.txt"
-    
 
-    elif args.dataset == "CAER":
+    if args.dataset == "CAER":
         print("*********** CAER Dataset ***********")
         log_txt_path = './log/' + 'CAER-' + time_str + '-log.txt'
         log_curve_path = './log/' + 'CAER-' + time_str + '-log.png'
@@ -542,14 +532,8 @@ if __name__ == '__main__':
     UAR = 0.0
     WAR = 0.0
 
-    if args.dataset == "FERV39K":
-        all_fold = 1
-    elif args.dataset == "CAER":
-        all_fold = 1    
-    elif args.dataset == "DFEW":
-        all_fold = 5
-    elif args.dataset == "MAFW":
-        all_fold = 5
+ 
+all_fold = 1
 
     for set in range(all_fold):
         uar, war = main(set)
