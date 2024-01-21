@@ -10,4 +10,7 @@ Additionally, we incorporate a trainable prompt to serve as contextual informati
 
 # Rusults
 ![image](https://github.com/kebiabc/VLM-EMO/assets/33951067/62c9f4a4-2b84-4c14-aaed-465facb24906)
+
 ![CAER-2310112146-cn](https://github.com/kebiabc/VLM-EMO/assets/33951067/3188a9ca-1a30-4abf-bfae-963cd9747914)
+
+![image](https://github.com/kebiabc/VLM-EMO/assets/33951067/b9cb373c-7721-471e-8d72-df41c1c21513)
