@@ -18,6 +18,7 @@ import itertools
 import datetime
 # from dataloader.video_dataloader import train_data_loader, test_data_loader
 from dataloader.dataloader import MyDataset
+from dataloader.emotic_dataset import Emotic_PreDataset
 from sklearn.metrics import confusion_matrix
 import tqdm
 from clip import clip
@@ -26,6 +27,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 from models.Text import *
 import random
 from torchvision import transforms
+from sklearn.metrics import average_precision_score
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', type=str)
@@ -75,14 +77,29 @@ if args.dataset == "FERV39K" or  args.dataset == "CAER":
     class_names_with_context = class_names_with_context_7
     class_descriptor = class_descriptor_7
    
+elif args.dataset == "Emotic":
+    number_class = 26
+    class_names = class_names_26
+    class_names_with_context = class_names_with_context_26
+    class_descriptor = class_descriptor_26
 
 # print(torch.cuda.device_count())
 
 def main(set):
     
     data_set = set+1 
+    if args.dataset == "FERV39K":
+        print("*********** FERV39K Dataset ***********")
+        log_txt_path = './log/' + 'FER39K-' + time_str + '-log.txt'
+        log_curve_path = './log/' + 'FER39K-' + time_str + '-log.png'
+        log_confusion_matrix_path = './log/' + 'FER39K-' + time_str + '-cn.png'
+        checkpoint_path = '/checkpoint/' + 'FER39K-' + time_str + '-model.pth'
+        best_checkpoint_path = './checkpoint/' + 'FER39K-' + time_str + '-model_best.pth'
+        train_annotation_file_path = "./annotation/FERV39K_train.txt"
+        test_annotation_file_path = "./annotation/FERV39K_test.txt"
+    
 
-    if args.dataset == "CAER":
+    elif args.dataset == "CAER":
         print("*********** CAER Dataset ***********")
         log_txt_path = './log/' + 'CAER-' + time_str + '-log.txt'
         log_curve_path = './log/' + 'CAER-' + time_str + '-log.png'
@@ -91,6 +108,16 @@ def main(set):
         best_checkpoint_path = './checkpoint/' + 'CAER-' + time_str + '-model_best.pth'
         train_annotation_file_path = "caer/CAER-master/CAER/data/CAER/train.txt"
         test_annotation_file_path = "caer/CAER-master/CAER/data/CAER/test.txt"
+
+     
+    elif args.dataset == "Emotic":
+        print("*********** Emotic Dataset ***********")
+        log_txt_path = './log/' + 'Emotic-' + time_str + '-log.txt'
+        log_curve_path = './log/' + 'Emotic-' + time_str + '-log.png'
+        log_confusion_matrix_path = './log/' + 'Emotic-' + time_str + '-cn.png'
+        checkpoint_path = './checkpoint/' + 'Emotic-' + time_str + '-model.pth'
+        best_checkpoint_path = './checkpoint/' + 'Emotic-' + time_str + '-model_best.pth'
+       
 
     best_acc = 0
     recorder = RecorderMeter(args.epochs)
@@ -138,7 +165,9 @@ def main(set):
             f.write(str(k) + '=' + str(v) + '\n')
     
     # define loss function (criterion)
-    criterion = nn.CrossEntropyLoss().cuda()
+    # criterion = nn.CrossEntropyLoss().cuda()
+    criterion = torch.nn.BCEWithLogitsLoss().cuda()
+        
     
     # define optimizer
     optimizer = torch.optim.SGD([{"params": model.module.temporal_net.parameters(), "lr": args.lr},
@@ -173,8 +202,68 @@ def main(set):
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
     ])
-    train_data = MyDataset(root= "caer/CAER-master/CAER/data/CAER-S/train",input_file= "caer/CAER-master/CAER/data/train.txt",transform=data_transforms)
-    test_data = MyDataset(root= "caer/CAER-master/CAER/data/CAER-S/test",input_file= "caer/CAER-master/CAER/data/test.txt",transform=data_transforms)
+    # train_data = MyDataset(root= "caer/CAER-master/CAER/data/CAER-S/train",input_file= "caer/CAER-master/CAER/data/train.txt",transform=data_transforms)
+    # test_data = MyDataset(root= "caer/CAER-master/CAER/data/CAER-S/test",input_file= "caer/CAER-master/CAER/data/test.txt",transform=data_transforms)
+
+    # Change data_src variable as per your drive
+    data_src = 'emotic'
+
+
+    # Load training preprocessed data
+    train_context = np.load(os.path.join(data_src,'emotic_pre','train_context_arr.npy'))
+    train_body = np.load(os.path.join(data_src,'emotic_pre','train_body_arr.npy'))
+    train_cat = np.load(os.path.join(data_src,'emotic_pre','train_cat_arr.npy'))
+    train_cont = np.load(os.path.join(data_src,'emotic_pre','train_cont_arr.npy'))
+
+    # Load validation preprocessed data 
+    val_context = np.load(os.path.join(data_src,'emotic_pre','val_context_arr.npy'))
+    val_body = np.load(os.path.join(data_src,'emotic_pre','val_body_arr.npy'))
+    val_cat = np.load(os.path.join(data_src,'emotic_pre','val_cat_arr.npy'))
+    val_cont = np.load(os.path.join(data_src,'emotic_pre','val_cont_arr.npy'))
+
+    # Load testing preprocessed data
+    test_context = np.load(os.path.join(data_src,'emotic_pre','test_context_arr.npy'))
+    test_body = np.load(os.path.join(data_src,'emotic_pre','test_body_arr.npy'))
+    test_cat = np.load(os.path.join(data_src,'emotic_pre','test_cat_arr.npy'))
+    test_cont = np.load(os.path.join(data_src,'emotic_pre','test_cont_arr.npy'))
+
+    # Categorical emotion classes
+    cat = ['Affection', 'Anger', 'Annoyance', 'Anticipation', 'Aversion', 'Confidence', 'Disapproval', 'Disconnection',
+        'Disquietment', 'Doubt/Confusion', 'Embarrassment', 'Engagement', 'Esteem', 'Excitement', 'Fatigue', 'Fear',
+        'Happiness', 'Pain', 'Peace', 'Pleasure', 'Sadness', 'Sensitivity', 'Suffering', 'Surprise', 'Sympathy', 'Yearning']
+
+    cat2ind = {}
+    ind2cat = {}
+    for idx, emotion in enumerate(cat):
+        cat2ind[emotion] = idx
+        ind2cat[idx] = emotion
+
+    print ('train ', 'context ', train_context.shape, 'body', train_body.shape, 'cat ', train_cat.shape, 'cont', train_cont.shape)
+    print ('val ', 'context ', val_context.shape, 'body', val_body.shape, 'cat ', val_cat.shape, 'cont', val_cont.shape)
+    print ('test ', 'context ', test_context.shape, 'body', test_body.shape, 'cat ', test_cat.shape, 'cont', test_cont.shape)
+
+    context_mean = [0.4690646, 0.4407227, 0.40508908]
+    context_std = [0.2514227, 0.24312855, 0.24266963]
+    body_mean = [0.43832874, 0.3964344, 0.3706214]
+    body_std = [0.24784276, 0.23621225, 0.2323653]
+    context_norm = [context_mean, context_std]
+    body_norm = [body_mean, body_std]
+
+
+    train_transform = transforms.Compose([transforms.ToPILImage(), 
+                                        transforms.RandomHorizontalFlip(), 
+                                        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4), 
+                                        transforms.ToTensor()])
+    test_transform = transforms.Compose([transforms.ToPILImage(), 
+                                        transforms.ToTensor()])
+
+    train_data = Emotic_PreDataset(train_context, train_body, train_cat, train_cont, \
+                                  train_transform, context_norm, body_norm)
+    val_data = Emotic_PreDataset(val_context, val_body, val_cat, val_cont, \
+                                    test_transform, context_norm, body_norm)
+    test_data = Emotic_PreDataset(test_context, test_body, test_cat, test_cont, \
+                                    test_transform, context_norm, body_norm)
+
     train_loader = torch.utils.data.DataLoader(train_data,
                                                batch_size=args.batch_size,
                                                shuffle=True,
@@ -186,6 +275,12 @@ def main(set):
                                              shuffle=False,
                                              num_workers=args.workers,
                                              pin_memory=True)
+    
+    # test_loader = torch.utils.data.DataLoader(test_data,
+    #                                          batch_size=args.batch_size,
+    #                                          shuffle=False,
+    #                                          num_workers=args.workers,
+    #                                          pin_memory=True)
 
     for epoch in range(0, args.epochs):
 
@@ -252,14 +347,18 @@ def train(train_loader, model, criterion, optimizer, epoch, args, log_txt_path):
         images = images.cuda()
         target = target.cuda()
 
+
+        print(target.shape)
         # compute output
-        output = model(images)        
+        output = model(images)       
+        print(output.shape) 
         loss = criterion(output, target)
         
         # measure accuracy and record loss
-        acc1, _ = accuracy(output, target, topk=(1, 5))
+        # acc1, _ = accuracy(output, target, topk=(1, 5))
+        acc1 = test_scikit_mAP(output, target)
         losses.update(loss.item(), images.size(0))
-        top1.update(acc1[0], images.size(0))
+        top1.update(acc1, images.size(0))
 
         # compute gradient and do SGD step
         optimizer.zero_grad()
@@ -295,9 +394,10 @@ def validate(val_loader, model, criterion, args, log_txt_path):
             loss = criterion(output, target)
 
             # measure accuracy and record loss
-            acc1, _ = accuracy(output, target, topk=(1, 5))
+            # acc1, _ = accuracy(output, target, topk=(1, 5))
+            acc1 = test_scikit_mAP(output, target)
             losses.update(loss.item(), images.size(0))
-            top1.update(acc1[0], images.size(0))
+            top1.update(acc1, images.size(0))
 
             if i % args.print_freq == 0:
                 progress.display(i)
@@ -359,19 +459,31 @@ class ProgressMeter(object):
         return '[' + fmt + '/' + fmt.format(num_batches) + ']'
 
 
-def accuracy(output, target, topk=(1,)):
-    """Computes the accuracy over the k top predictions for the specified values of k"""
-    with torch.no_grad():
-        maxk = max(topk)
-        batch_size = target.size(0)
-        _, pred = output.topk(maxk, 1, True, True)
-        pred = pred.t()
-        correct = pred.eq(target.view(1, -1).expand_as(pred))
-        res = []
-        for k in topk:
-            correct_k = correct[:k].contiguous().view(-1).float().sum(0, keepdim=True)
-            res.append(correct_k.mul_(100.0 / batch_size))
-        return res
+# def accuracy(output, target, topk=(1,)):
+#     """Computes the accuracy over the k top predictions for the specified values of k"""
+#     with torch.no_grad():
+#         maxk = max(topk)
+#         batch_size = target.size(0)
+#         _, pred = output.topk(maxk, 1, True, True)
+#         pred = pred.t()
+#         # correct = pred.eq(target.view(1, -1).expand_as(pred))
+#         correct = pred.eq(target.view(-1, 1))
+
+#         res = []
+#         for k in topk:
+#             correct_k = correct[:k].contiguous().view(-1).float().sum(0, keepdim=True)
+#             res.append(correct_k.mul_(100.0 / batch_size))
+#         return res
+def test_scikit_mAP(cat_preds, cat_labels):
+    num_classes = cat_preds.shape[1]
+    AP = np.zeros(num_classes, dtype=np.float32)
+    cat_preds = cat_preds.detach().cpu().numpy()  # 先分离出计算图，然后移至 CPU 并转换为 NumPy 数组
+    cat_labels = cat_labels.detach().cpu().numpy() # 先分离出计算图，然后移至 CPU 并转换为 NumPy 数组
+    for i in range(num_classes):
+        AP[i] = average_precision_score(cat_labels[:, i], cat_preds[:, i])
+    # print('ap', AP, AP.shape, AP.mean())
+    return AP.mean()
+
 
 
 class RecorderMeter(object):
@@ -503,14 +615,12 @@ def computer_uar_war(val_loader, model, best_checkpoint_path, log_confusion_matr
     # Plot normalized confusion matrix
     plt.figure(figsize=(10, 8))
 
-    if args.dataset == "FERV39K":
-        title_ = "Confusion Matrix on FERV39k"
-    elif args.dataset == "CAER":
+ 
+    if args.dataset == "CAER":
         title_ = "Confusion Matrix on CAER"    
-    elif args.dataset == "DFEW":
-        title_ = "Confusion Matrix on DFEW fold "+str(data_set)
-    elif args.dataset == "MAFW":
-        title_ = "Confusion Matrix on MAFW fold "+str(data_set)
+    # elif args.dataset == "Emotic":
+    #     title_ = "Confusion Matrix on Emotic"
+
 
     plot_confusion_matrix(normalized_cm, classes=class_names, normalize=True, title=title_)
     plt.savefig(os.path.join(log_confusion_matrix_path))
@@ -532,9 +642,11 @@ if __name__ == '__main__':
     UAR = 0.0
     WAR = 0.0
 
- 
-all_fold = 1
-
+    if args.dataset == "CAER":
+        all_fold = 1    
+    elif args.dataset == "Emotic":
+        all_fold = 1
+   
     for set in range(all_fold):
         uar, war = main(set)
         UAR += float(uar)
