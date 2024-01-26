@@ -17,23 +17,14 @@ class_names_with_context_7 = [
 'an expression of disgust.',
 'an expression of fear.'
 ]
-# class_descriptor_7 = [
-# 'a smiling mouth, raised cheeks, wrinkled eyes, and arched eyebrows.',
-# 'tears, a downward turned mouth, drooping upper eyelids, and a wrinkled forehead.',
-# 'relaxed facial muscles, a straight mouth, a smooth forehead, and unremarkable eyebrows.',
-# 'furrowed eyebrows, narrow eyes, tightened lips, and flared nostrils.',
-# 'widened eyes, an open mouth, raised eyebrows, and a frozen expression.',
-# 'a wrinkled nose, lowered eyebrows, a tightened mouth, and narrow eyes.',
-# 'raised eyebrows, parted lips, a furrowed brow, and a retracted chin.',
-# ]
 class_descriptor_7 = [
-'Facial tension, clenched fists, intense gaze, aggressive gestures.',  
-'Nose wrinkle, lip curl, squinted eyes, recoiled facial expression.',
-'Wide eyes, raised eyebrows, tense posture, quivering or trembling.',
-'Smiling face, bright eyes, relaxed posture, cheerful demeanor.',
-'Relaxed face, neutral gaze, even posture, unremarkable expression.',
-'Drooping posture, teary eyes, downturned mouth, withdrawn demeanor.',  
-'Wide-open eyes, raised eyebrows, dropped jaw, startled facial expression..',
+    'Smiling, raised cheeks, crinkled eyes, arched eyebrows', # happiness
+    'Frowning, tearful, downturned mouth, slumped posture',    # sadness
+    'Blank stare, even eyebrows, relaxed muscles, still posture', # neutral
+    'Scowling, clenched jaw, narrowed eyes, flared nostrils',  # anger
+    'Wide eyes, raised eyebrows, open mouth, dropped jaw',      # surprise
+    'Scrunched nose, wrinkled brow, raised upper lip, narrowed eyes', # disgust
+    'Wide eyes, raised eyebrows, open mouth, tense shoulders'   # fear
 ]
 
 ####################################### 26 Classes #######################################
