@@ -1,4 +1,4 @@
-# VLM-EMO
+![image](https://github.com/kebiabc/VLM-EMO/assets/33951067/2d516ff0-ae07-4a48-bee8-a239d817a5ad)# VLM-EMO
 This repo contains the official code of VLM-EMO Context-Aware Emotion Classification in the Wild with CLIP (VLM-EMO).
 ![VLM-EMO](https://github.com/kebiabc/VLM-EMO/assets/33951067/e9a05f99-954e-4df1-8e13-0c91c428af9d)
 
@@ -9,8 +9,10 @@ In the textual portion, we employ descriptions that pertain to behavior in lieu 
 Additionally, we incorporate a trainable prompt to serve as contextual information for each class's descriptors.
 
 # Rusults
-![image](https://github.com/kebiabc/VLM-EMO/assets/33951067/62c9f4a4-2b84-4c14-aaed-465facb24906)
+![image](https://github.com/kebiabc/VLM-EMO/assets/33951067/7f18855c-a416-43d3-8b68-cd6623750d73)
 
-![CAER-2310112146-cn](https://github.com/kebiabc/VLM-EMO/assets/33951067/3188a9ca-1a30-4abf-bfae-963cd9747914)
+![CAER-2401261508-cn](https://github.com/kebiabc/VLM-EMO/assets/33951067/93944755-5645-4db0-a770-09de915f71e2)
 
-![image](https://github.com/kebiabc/VLM-EMO/assets/33951067/b9cb373c-7721-471e-8d72-df41c1c21513)
+![image](https://github.com/kebiabc/VLM-EMO/assets/33951067/164314d0-6bc4-4e0f-aa7a-c26844d9fadc)
+
+
