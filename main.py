@@ -71,7 +71,7 @@ for k, v in vars(args).items():
     print(k,'=',v)
 print('************************')
 
-if args.dataset == "FERV39K" or  args.dataset == "CAER":
+if  args.dataset == "CAER":
     number_class = 7
     class_names = class_names_7
     class_names_with_context = class_names_with_context_7
@@ -88,26 +88,15 @@ elif args.dataset == "Emotic":
 def main(set):
     
     data_set = set+1 
-    if args.dataset == "FERV39K":
-        print("*********** FERV39K Dataset ***********")
-        log_txt_path = './log/' + 'FER39K-' + time_str + '-log.txt'
-        log_curve_path = './log/' + 'FER39K-' + time_str + '-log.png'
-        log_confusion_matrix_path = './log/' + 'FER39K-' + time_str + '-cn.png'
-        checkpoint_path = '/checkpoint/' + 'FER39K-' + time_str + '-model.pth'
-        best_checkpoint_path = './checkpoint/' + 'FER39K-' + time_str + '-model_best.pth'
-        train_annotation_file_path = "./annotation/FERV39K_train.txt"
-        test_annotation_file_path = "./annotation/FERV39K_test.txt"
     
-
-    elif args.dataset == "CAER":
+    if args.dataset == "CAER":
         print("*********** CAER Dataset ***********")
         log_txt_path = './log/' + 'CAER-' + time_str + '-log.txt'
         log_curve_path = './log/' + 'CAER-' + time_str + '-log.png'
         log_confusion_matrix_path = './log/' + 'CAER-' + time_str + '-cn.png'
         checkpoint_path = './checkpoint/' + 'CAER-' + time_str + '-model.pth'
         best_checkpoint_path = './checkpoint/' + 'CAER-' + time_str + '-model_best.pth'
-        train_annotation_file_path = "caer/CAER-master/CAER/data/CAER/train.txt"
-        test_annotation_file_path = "caer/CAER-master/CAER/data/CAER/test.txt"
+
 
      
     elif args.dataset == "Emotic":
