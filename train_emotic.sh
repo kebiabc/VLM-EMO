@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CUDA_VISIBLE_DEVICES='0' python main.py \
+CUDA_VISIBLE_DEVICES='0' python main_emotic.py \
 --dataset 'Emotic' \
 --workers 8 \
 --epochs 50 \
