@@ -3,8 +3,8 @@
 CUDA_VISIBLE_DEVICES='0' python main.py \
 --dataset 'Emotic' \
 --workers 8 \
---epochs 10 \
---batch-size 48 \
+--epochs 50 \
+--batch-size 256 \
 --lr 1e-2 \
 --lr-image-encoder 1e-5 \
 --lr-prompt-learner 1e-3 \
