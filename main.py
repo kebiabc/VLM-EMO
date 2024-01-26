@@ -69,7 +69,7 @@ for k, v in vars(args).items():
     print(k,'=',v)
 print('************************')
 
-if args.dataset == "FERV39K" or  args.dataset == "CAER":
+if  args.dataset == "CAER":
     number_class = 7
     class_names = class_names_7
     class_names_with_context = class_names_with_context_7
