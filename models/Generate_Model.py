@@ -25,6 +25,7 @@ class GenerateModel(nn.Module):
     def forward(self, image):
         
         ################# Visual Part #################
+        t = 1
         n, t, c, h, w = image.shape
         image = image.contiguous().view(-1, c, h, w)
         image_features = self.image_encoder(image.type(self.dtype))
